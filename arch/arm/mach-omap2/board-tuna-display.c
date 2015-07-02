@@ -1093,7 +1093,9 @@ static struct omap_dss_device tuna_hdmi_device = {
 
 static struct omap_dss_device *tuna_dss_devices[] = {
 	&tuna_oled_device,
+#if defined(CONFIG_OMAP4_DSS_HDMI)
 	&tuna_hdmi_device,
+#endif
 };
 
 static struct omap_dss_board_info tuna_dss_data = {
@@ -1108,7 +1110,7 @@ static struct dsscomp_platform_data dsscomp_config_tuna = {
 
 static struct sgx_omaplfb_config omaplfb_config_tuna[] = {
 	{
-	.vram_buffers = 4,
+	.vram_buffers = 2,
 	.swap_chain_length = 2,
 	},
 #if defined(CONFIG_OMAP4_DSS_HDMI)
