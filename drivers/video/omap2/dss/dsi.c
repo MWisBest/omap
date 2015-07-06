@@ -2891,6 +2891,7 @@ void omapdss_dsi_vc_enable_hs(struct omap_dss_device *dssdev, int channel,
 
 	dsi_force_tx_stop_mode_io(dsidev);
 
+	/* MW TODO: #ifndef CONFIG_MACH_TUNA ? */
 	/* start the DDR clock by sending a NULL packet */
 	if (dssdev->panel.dsi_vm_data.ddr_clk_always_on && enable)
 		dsi_vc_send_null(dssdev, channel);
@@ -3791,6 +3792,10 @@ static void dsi_set_ta_timeout(struct platform_device *dsidev, unsigned ticks,
 	/* ticks in DSI_FCK */
 	fck = dsi_fclk_rate(dsidev);
 
+#ifdef CONFIG_MACH_TUNA
+	to = false;
+#endif
+
 	r = dsi_read_reg(dsidev, DSI_TIMING1);
 	r = FLD_MOD(r, to ? 1 : 0, 31, 31);	/* TA_TO */
 	r = FLD_MOD(r, x16 ? 1 : 0, 30, 30);	/* TA_TO_X16 */
@@ -3859,6 +3864,10 @@ static void dsi_set_hs_tx_timeout(struct platform_device *dsidev,
 
 	/* ticks in TxByteClkHS */
 	fck = dsi_get_txbyteclkhs(dsidev);
+
+//#ifdef CONFIG_MACH_TUNA
+//	to = false;
+//#endif
 
 	r = dsi_read_reg(dsidev, DSI_TIMING2);
 	r = FLD_MOD(r, to ? 1 : 0, 31, 31);	/* HS_TX_TO */
@@ -4717,6 +4726,7 @@ int dsi_configure_dsi_clocks(struct omap_dss_device *dssdev)
 		return r;
 	}
 
+	/* MW TODO: remove skip_init? */
 	if (!dssdev->skip_init) {
 		r = dsi_pll_set_clock_div(dsidev, &cinfo);
 		if (r) {
@@ -4780,6 +4790,7 @@ static int dsi_display_init_dsi(struct omap_dss_device *dssdev)
 	if (r)
 		goto err0;
 
+	/* MW TODO: skip_init?! */
 	r = dsi_configure_dsi_clocks(dssdev);
 	if (r)
 		goto err1;
@@ -4948,6 +4959,8 @@ int omapdss_dsi_display_enable(struct omap_dss_device *dssdev)
 
 	if (!dssdev->skip_init) {
 		dsi_enable_pll_clock(dsidev, 1);
+
+		/* MW TODO: #ifndef CONFIG_MACH_TUNA? */
 		REG_FLD_MOD(dsidev, DSI_SYSCONFIG, 1, 1, 1);
 		_dsi_wait_reset(dsidev);
 
@@ -5419,16 +5432,17 @@ void dsi_videomode_panel_preinit(struct omap_dss_device *dssdev)
 	dsi_write_reg(dsidev, DSI_VM_TIMING4, 0x00000000);
 #elif defined (CONFIG_PANEL_S6E8AA0)
 	/* HSA=1, HFP=118, HBP=119 */
-	dsi_write_reg(dsidev, DSI_VM_TIMING1, 0x01076077);
+	dsi_write_reg(dsidev, DSI_VM_TIMING1, 0x00075078);
 	/* WINDOW_SIZE=4, VSA=1, VFP=13, VBP=2 */
 	dsi_write_reg(dsidev, DSI_VM_TIMING2, 0x04010d02);
 	/* TL(31:16)=780, VACT(15:0)=1280 */
 	dsi_write_reg(dsidev, DSI_VM_TIMING3, 0x030c0500);
-        /*
-         * HSA_HS_INTERLEAVING(23:16)=0, HFP_HS_INTERLEAVING(15:8)=0,
-         * HBP_HS_INTERLEAVING(7:0)=0
-         */
-        dsi_write_reg(dsidev, DSI_VM_TIMING4, 0x00000000);
+	/*
+	 * HSA_HS_INTERLEAVING(23:16)=0, HFP_HS_INTERLEAVING(15:8)=0,
+	 * HBP_HS_INTERLEAVING(7:0)=0
+	 */
+	//dsi_write_reg(dsidev, DSI_VM_TIMING4, 0x00000000);
+	dsi_write_reg(dsidev, DSI_VM_TIMING4, 0x00487296);
 #else
 	/* HSA=1, HFP=24, HBP=20 */
 	dsi_write_reg(dsidev, DSI_VM_TIMING1, 0x01018014);
@@ -5466,10 +5480,11 @@ void dsi_videomode_panel_preinit(struct omap_dss_device *dssdev)
 	dsi_write_reg(dsidev, DSI_VM_TIMING7, 0x0017000E);
 	dsi_write_reg(dsidev, DSI_STOPCLK_TIMING, 0x07);
 #elif defined (CONFIG_PANEL_S6E8AA0)
-        /* BL_HS_INTERLEAVING(23:16)=31335, BL_LP_INTERLEAVING(15:0)=12753 */
-        dsi_write_reg(dsidev, DSI_VM_TIMING6, 0x7A6731D1);
-        /* ENTER_HS_MODE_LATENCY(31:16)=14 EXIT_HS_MODE_LATENCY(15:0)=19 */
-        dsi_write_reg(dsidev, DSI_VM_TIMING7, 0x00170014);
+	/* BL_HS_INTERLEAVING(23:16)=31335, BL_LP_INTERLEAVING(15:0)=12753 */
+	dsi_write_reg(dsidev, DSI_VM_TIMING6, 0x7A6731D1);
+	/* ENTER_HS_MODE_LATENCY(31:16)=14 EXIT_HS_MODE_LATENCY(15:0)=19 */
+	//dsi_write_reg(dsidev, DSI_VM_TIMING7, 0x00170014);
+	dsi_write_reg(dsidev, DSI_VM_TIMING7, 0x0012000f);
 #else
 	/* BL_HS_INTERLEAVING(23:16)=31335, BL_LP_INTERLEAVING(15:0)=12753 */
 	dsi_write_reg(dsidev, DSI_VM_TIMING6, 0x7A6731D1);
@@ -5482,7 +5497,7 @@ void dsi_videomode_panel_preinit(struct omap_dss_device *dssdev)
 	dsi_if_enable(dsidev, true);
 
 	/* Send null packet to start DDR clock	*/
-#if !(defined(CONFIG_PANEL_NT71391_HYDIS) || defined(CONFIG_PANEL_NT51012_LG))
+#if !(defined(CONFIG_PANEL_NT71391_HYDIS) || defined(CONFIG_PANEL_NT51012_LG) || defined(CONFIG_PANEL_S6E8AA0))
 	dsi_write_reg(dsidev, DSI_VC_SHORT_PACKET_HEADER(0), 0);
 	msleep(1);
 #endif

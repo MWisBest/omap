@@ -1698,11 +1698,13 @@ static int s6e8aa0_power_on(struct omap_dss_device *dssdev)
 
 			/* XXX */
 			msleep(100);
+			dsi_videomode_panel_preinit(dssdev);
+			//msleep(300);
 			omapdss_dsi_vc_enable_hs(dssdev, s6->channel0, true);
 			omapdss_dsi_vc_enable_hs(dssdev, s6->channel1, true);
-
+			//msleep(300);
 			s6e8aa0_config(dssdev);
-
+			//msleep(300);
 			dsi_enable_video_output(dssdev, s6->channel0);
 			// HASH: TODO dsi_video_mode_enable(dssdev, 0x3E); /* DSI_DT_PXLSTREAM_24BPP_PACKED; */
 		}
