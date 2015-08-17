@@ -271,6 +271,7 @@ struct omap_hsmmc_host {
 	u32			tuning_uhsmc;
 	u32			tuning_opcode;
 #ifndef CONFIG_MACH_OMAP4_BOWSER
+	// tuna too?
 	struct omap_hsmmc_next	next_data;
 #endif
 
@@ -293,6 +294,7 @@ static int
 omap_hsmmc_prepare_data(struct omap_hsmmc_host *host, struct mmc_request *req);
 
 #ifdef CONFIG_MACH_OMAP4_BOWSER
+// tuna too. (WiFi)
 static void omap_hsmmc_status_notify_cb(int card_present, void *dev_id)
 {
 	struct omap_hsmmc_host *host = (struct omap_hsmmc_host *)dev_id;
@@ -2930,6 +2932,7 @@ static int __devinit omap_hsmmc_probe(struct platform_device *pdev)
 	mmc->caps |= MMC_CAP_MMC_HIGHSPEED | MMC_CAP_SD_HIGHSPEED |
 #ifdef CONFIG_MACH_OMAP4_BOWSER
 		     MMC_CAP_WAIT_WHILE_BUSY | MMC_CAP_ERASE | MMC_CAP_CMD23;
+		// tuna too?
 #else
 		     MMC_CAP_WAIT_WHILE_BUSY | MMC_CAP_ERASE;
 #endif
@@ -3006,6 +3009,7 @@ static int __devinit omap_hsmmc_probe(struct platform_device *pdev)
 		pdata->suspend = omap_hsmmc_suspend_cdirq;
 		pdata->resume = omap_hsmmc_resume_cdirq;
 #ifdef CONFIG_MACH_OMAP4_BOWSER
+		// tuna too. (WiFi)
 	} else if (mmc_slot(host).mmc_data.register_status_notify) {
 		mmc_slot(host).mmc_data.register_status_notify(omap_hsmmc_status_notify_cb, host);
 #endif

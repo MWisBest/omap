@@ -599,6 +599,7 @@ static int __init omap_hsmmc_pdata_init(struct omap2_hsmmc_info *c,
 		mmc->slots[0].vcc_aux_disable_is_sleep = 1;
 
 #ifdef CONFIG_MACH_OMAP4_BOWSER
+	// tuna too?
 	if (c->mmc_data) {
 		memcpy(&mmc->slots[0].mmc_data, c->mmc_data,
 				sizeof(struct mmc_platform_data));
